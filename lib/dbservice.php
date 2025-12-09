@@ -115,4 +115,45 @@ function getTableStackCard() {
     return $data;
 }
 
+function tableIsEmpty($tableName) {
+    global $mysqli;
+    $sql = "select count(*) from {$tableName}";
+    $result = $mysqli->query($sql);
+    $row = $result->fetch_assoc();
+    return $row['count(*)'] == 0;
+}
+
+function playerHandIsEmpty() {
+    return tableIsEmpty("player_hand");
+}
+
+function enemyHandIsEmpty() {
+    return tableIsEmpty("enemy_hand");
+}
+
+function tableDeckIsEmpty() {
+    return tableIsEmpty("table_deck");
+}
+
+function tableDeckOneCard() {
+    global $mysqli;
+    $sql = "select count(*) from table_deck";
+    $result = $mysqli->query($sql);
+    $row = $result->fetch_assoc();
+    return $row['count(*)'] == 1;
+}
+
+function playCardOnDeck($playerName, $suit, $rank) {
+    global $mysqli;
+    $deleteFromHand = "delete from {$playerName}_hand where suit = ? and rank = ?";
+    $st = $mysqli->prepare($deleteFromHand);
+    $st->bind_param("ss", $suit, $rank);
+    $st->execute();
+
+    $addToDeck = "insert into table_deck(suit,rank) values(?,?)";
+    $st = $mysqli->prepare($addToDeck);
+    $st->bind_param("ss", $suit, $rank);
+    $st->execute();
+}
+
 ?>
