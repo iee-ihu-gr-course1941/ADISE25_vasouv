@@ -40,14 +40,15 @@ if ($path === "/deck" && $method === "GET") {
 
 if ($path === "/hand" && $method === "GET") {
     auth();
-    $hand = $playerName === 'player' ? getPlayerHand() : getEnemyHand();
+    $hand = getHand($playerName);
     echo json_encode($hand, JSON_PRETTY_PRINT);
     exit;
 }
 
 if ($path === "/play" && $method === "POST") {
     auth();
-    $playerName === 'player' ? getPlayerHand() : getEnemyHand();
+    // todo: check game is PLAYING
+    checkPlayerTurn($playerName);
 
     $raw = file_get_contents("php://input");
     $payload = json_decode($raw, true);
@@ -55,24 +56,50 @@ if ($path === "/play" && $method === "POST") {
     $suit = $payload["suit"];
     $rank = $payload["rank"];
 
+    checkCardInHand($playerName, $suit, $rank);
+
     if (xeriMeVale($rank)) {
-        // mazepse kai metra pontous
+        $score = 20;
+        // todo: add score to player
+        clearTableDeck();
         echo "Ekanes xeri me vale";
         exit;
     } elseif (xeriMeRank($rank)) {
-        // mazepse kai metra pontous
+        $score = 10;
+        // todo: add score to player
         echo "Ekanes apli xeri";
         exit;
     } elseif (suitsMatch($suit)) {
         // mazepse kai metra pontous
+        playCardOnDeck($playerName, $suit, $rank);
+        $score = calculateScore();
         echo "Mazeueis ta fylla";
         exit;
     } else {
-        echo "Apla paizeis";
-        exit;
-        // playCardOnDeck($playerName, $suit, $rank);
+        // echo "Apla paizeis";
+        // exit;
+        playCardOnDeck($playerName, $suit, $rank);
     }
 
+    if (tableDeckIsEmpty()) {
+        // todo: change game status
+    }
+    if (playerHandIsEmpty() && enemyHandIsEmpty()) dealCards();
+
+}
+
+function checkPlayerTurn($playerName) {
+    if ($playerName === getLastPlayer()) {
+        echo "Not your turn";
+        exit;
+    }
+}
+
+function checkCardInHand($playerName, $suit, $rank) {
+    if (!cardInHand($playerName, $suit, $rank)) {
+        echo "You don't have this card";
+        exit;
+    }
 }
 
 function xeriMeVale($playedRank) {
@@ -85,6 +112,20 @@ function xeriMeRank($playedRank) {
 
 function suitsMatch($playedSuit) {
     return getTableStackCard()[0]["suit"] === $playedSuit;
+}
+
+function calculateScore() {
+    $score = 0;
+    $deck = getTableDeck();
+    foreach ($deck as $card) {
+        if (in_array($card['rank'],['J','Q','K'])) {
+            $score += 1;
+        }
+        if ($card['rank'] === '10' && $card['suit'] != 'DIAMONDS') {
+            $score += 1;
+        }
+    }
+    return $score;
 }
 
 ?>
