@@ -33,6 +33,7 @@ if ($path === "/initialize" && $method === "POST") {
 
 if ($path === "/deck" && $method === "GET") {
     auth();
+    checkGamePlaying();
     $card = getTableStackCard();
     echo json_encode($card);
     exit;
@@ -40,6 +41,7 @@ if ($path === "/deck" && $method === "GET") {
 
 if ($path === "/hand" && $method === "GET") {
     auth();
+    checkGamePlaying();
     $hand = getHand($playerName);
     echo json_encode($hand, JSON_PRETTY_PRINT);
     exit;
@@ -47,7 +49,7 @@ if ($path === "/hand" && $method === "GET") {
 
 if ($path === "/play" && $method === "POST") {
     auth();
-    // todo: check game is PLAYING
+    checkGamePlaying();
     checkPlayerTurn($playerName);
 
     $raw = file_get_contents("php://input");
@@ -60,29 +62,23 @@ if ($path === "/play" && $method === "POST") {
 
     if (xeriMeVale($rank)) {
         $score = 20;
-        // todo: add score to player
+        updateScore($playerName, $score);
         clearTableDeck();
-        echo "Ekanes xeri me vale";
-        exit;
     } elseif (xeriMeRank($rank)) {
         $score = 10;
-        // todo: add score to player
-        echo "Ekanes apli xeri";
-        exit;
+        updateScore($playerName, $score);
     } elseif (suitsMatch($suit)) {
-        // mazepse kai metra pontous
         playCardOnDeck($playerName, $suit, $rank);
         $score = calculateScore();
-        echo "Mazeueis ta fylla";
-        exit;
+        updateScore($playerName, $score);
     } else {
-        // echo "Apla paizeis";
-        // exit;
         playCardOnDeck($playerName, $suit, $rank);
     }
 
     if (tableDeckIsEmpty()) {
-        // todo: change game status
+        updateGameStatus('FINISHED');
+        echo "Game finished";
+        exit;
     }
     if (playerHandIsEmpty() && enemyHandIsEmpty()) dealCards();
 
@@ -126,6 +122,13 @@ function calculateScore() {
         }
     }
     return $score;
+}
+
+function checkGamePlaying() {
+    if ('FINISHED' === getGameStatus()) {
+        echo "Game finished";
+        exit;
+    }
 }
 
 ?>

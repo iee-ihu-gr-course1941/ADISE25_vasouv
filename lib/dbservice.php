@@ -237,4 +237,28 @@ function dealCards() {
     flushMultiQuery($mysqli);
 }
 
+function updateScore($playerName, $score) {
+    global $mysqli;
+    $updatescore = "update game_status set {$playerName}_score= {$playerName}_score + ?";
+    $st = $mysqli->prepare($updatescore);
+    $st->bind_param("s", $score);
+    $st->execute();
+}
+
+function getGameStatus() {
+    global $mysqli;
+    $sql = "SELECT status FROM game_status";
+    $result = $mysqli->query($sql);
+    $row = $result->fetch_assoc();
+    return $row['status'];
+}
+
+function updateGameStatus($status) {
+    global $mysqli;
+    $updatestatus = "update game_status set status = ?";
+    $st = $mysqli->prepare($updatestatus);
+    $st->bind_param("s", $status);
+    $st->execute();
+}
+
 ?>
