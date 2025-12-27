@@ -3,8 +3,6 @@
 require_once "lib/dbconnect.php";
 require_once "lib/dbservice.php";
 
-session_start();
-
 header("Content-Type: application/json");
 $path = $_SERVER['PATH_INFO'] ?? '/';
 $method = $_SERVER['REQUEST_METHOD'];
@@ -61,26 +59,48 @@ if ($path === "/play" && $method === "POST") {
     checkCardInHand($playerName, $suit, $rank);
 
     if (xeriMeVale($rank)) {
+        playCardOnDeck($playerName, $suit, $rank);
         $score = 20;
         updateScore($playerName, $score);
         clearTableDeck();
     } elseif (xeriMeRank($rank)) {
+        playCardOnDeck($playerName, $suit, $rank);
         $score = 10;
         updateScore($playerName, $score);
-    } elseif (suitsMatch($suit)) {
+        clearTableDeck();
+    } elseif (cardsMatch($suit, $rank)) {
         playCardOnDeck($playerName, $suit, $rank);
         $score = calculateScore();
         updateScore($playerName, $score);
+        clearTableDeck();
+    } elseif ($rank === 'J') {
+        if (tableDeckIsEmpty()) {
+            playCardOnDeck($playerName, $suit, $rank);
+        } else {
+            playCardOnDeck($playerName, $suit, $rank);
+            $score = calculateScore();
+            updateScore($playerName, $score);
+            clearTableDeck();
+        }
     } else {
         playCardOnDeck($playerName, $suit, $rank);
     }
 
-    if (tableDeckIsEmpty()) {
+    if (playingDeckIsEmpty() && playerHandIsEmpty() && enemyHandIsEmpty()) {
         updateGameStatus('FINISHED');
-        echo "Game finished";
-        exit;
+        $result = getGameStatus();
+        echo json_encode($result);
     }
     if (playerHandIsEmpty() && enemyHandIsEmpty()) dealCards();
+
+    $card = getTableStackCard();
+    $hand = getHand($playerName);
+    $game = array(
+        "card" => $card,
+        "hand" => $hand
+    );
+    echo json_encode($game);
+    exit;
 
 }
 
@@ -106,8 +126,9 @@ function xeriMeRank($playedRank) {
     return tableDeckOneCard() && getTableStackCard()[0]["rank"] === $playedRank;
 }
 
-function suitsMatch($playedSuit) {
-    return getTableStackCard()[0]["suit"] === $playedSuit;
+function cardsMatch($playedSuit, $playedRank) {
+    if (tableDeckIsEmpty()) return false;
+    return getTableStackCard()[0]["suit"] === $playedSuit || getTableStackCard()[0]["rank"] === $playedRank;
 }
 
 function calculateScore() {

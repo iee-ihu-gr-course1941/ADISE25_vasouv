@@ -131,6 +131,10 @@ function enemyHandIsEmpty() {
     return tableIsEmpty("enemy_hand");
 }
 
+function playingDeckIsEmpty() {
+    return tableIsEmpty("playing_deck");
+}
+
 function tableDeckIsEmpty() {
     return tableIsEmpty("table_deck");
 }
@@ -239,9 +243,9 @@ function dealCards() {
 
 function updateScore($playerName, $score) {
     global $mysqli;
-    $updatescore = "update game_status set {$playerName}_score= {$playerName}_score + ?";
+    $updatescore = "update game_status set {$playerName}_score= {$playerName}_score + ?, last_player=?";
     $st = $mysqli->prepare($updatescore);
-    $st->bind_param("s", $score);
+    $st->bind_param("ss", $score,$playerName);
     $st->execute();
 }
 
