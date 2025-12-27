@@ -24,3 +24,15 @@ CREATE TABLE playing_deck LIKE default_deck;
 CREATE TABLE table_deck LIKE default_deck;
 CREATE TABLE player_hand LIKE default_deck;
 CREATE TABLE enemy_hand LIKE default_deck;
+
+create table game_status (
+    id MEDIUMINT NOT NULL,
+    status ENUM('INITIALIZED','PLAYING','FINISHED','SETUP') NOT NULL,
+    player_score integer not null,
+    enemy_score integer not null,
+    last_player varchar(10),
+    PRIMARY KEY (id)
+);
+
+insert into game_status(id,status,player_score,enemy_score,last_player)
+values(1,'SETUP',0,0,null);
