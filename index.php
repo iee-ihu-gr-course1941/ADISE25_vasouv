@@ -29,6 +29,15 @@ if ($path === "/initialize" && $method === "POST") {
     exit;
 }
 
+if ($path === "/initialize-demo" && $method === "POST") {
+    initializeDemoDeck();
+    echo json_encode([
+        "status" => "ok",
+        "message" => "Demo Deck Initialized"
+    ]);
+    exit;
+}
+
 if ($path === "/deck" && $method === "GET") {
     auth();
     checkGamePlaying();

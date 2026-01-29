@@ -97,6 +97,40 @@ function initializeDeck() {
     flushMultiQuery($mysqli);
 }
 
+function initializeDemoDeck() {
+    global $mysqli;
+
+    // truncates the tables
+    $sqlTruncate = '
+        TRUNCATE TABLE playing_deck;
+        TRUNCATE TABLE table_deck;
+        TRUNCATE TABLE player_hand;
+        TRUNCATE TABLE enemy_hand;
+    ';
+    $mysqli->multi_query($sqlTruncate);
+    flushMultiQuery($mysqli);
+
+    // set default cards to players
+    $sqlDealPlayers = "
+        INSERT INTO player_hand (suit, rank)
+        VALUES ('SPADES','J'),('HEARTS','3'),('DIAMONDS','8'),('CLUBS','5'),('HEARTS','9'),('SPADES','2');
+
+        INSERT INTO enemy_hand (suit, rank)
+        VALUES ('DIAMONDS','J'),('CLUBS','3'),('CLUBS','7'),('SPADES','2'),('HEARTS','5'),('DIAMONDS','6');
+    ";
+    $mysqli->multi_query($sqlDealPlayers);
+    flushMultiQuery($mysqli);
+
+    // reset the game status table
+    $sqlGameStatusReset = "
+        UPDATE game_status
+        SET status='INITIALIZED', player_score=0, enemy_score=0, last_player='player'
+        WHERE id = 1
+    ";
+    $mysqli->multi_query($sqlGameStatusReset);
+    flushMultiQuery($mysqli);
+}
+
 function getHand($playerName) {
     global $mysqli;
     $sql = "SELECT suit, rank FROM {$playerName}_hand";
