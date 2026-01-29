@@ -61,3 +61,151 @@ Holds the game status (INITIALIZED, PLAYING, FINISHED), the scores and the last 
 * Usage of Laravel instead of vanilla PHP
 * Different DB structure, better normalization
 * Gameplay overhaul
+
+## DEMO
+
+### Environments
+```
+http://localhost/crash-course/cards.php
+https://users.it.teithe.gr/~it052781/xeri/index.php
+```
+
+#### Initialize
+```curl
+curl --location --request POST 'http://localhost/crash-course/cards.php/initialize-demo' --header 'X-Player-Name: player'
+```
+
+#### Errors
+
+##### No Auth
+```curl
+curl --location --request PUT 'http://localhost/crash-course/cards.php/play' \
+--header 'X-Player-Name: batman' \
+--header 'Content-Type: application/json' \
+--data '{
+    "suit": "DIAMONDS",
+    "rank": "J"
+}'
+```
+
+##### No Turn
+```
+curl --location --request PUT 'http://localhost/crash-course/cards.php/play' \
+--header 'X-Player-Name: player' \
+--header 'Content-Type: application/json' \
+--data '{
+    "suit": "SPADES",
+    "rank": "J"
+}'
+```
+
+##### No Card
+```
+curl --location --request PUT 'http://localhost/crash-course/cards.php/play' \
+--header 'X-Player-Name: enemy' \
+--header 'Content-Type: application/json' \
+--data '{
+    "suit": "HEARTS",
+    "rank": "Q"
+}'
+```
+
+#### Ξερή με Βαλέ
+```
+curl --location --request PUT 'http://localhost/crash-course/cards.php/play' \
+--header 'X-Player-Name: enemy' \
+--header 'Content-Type: application/json' \
+--data '{
+    "suit": "DIAMONDS",
+    "rank": "J"
+}'
+curl --location --request PUT 'http://localhost/crash-course/cards.php/play' \
+--header 'X-Player-Name: player' \
+--header 'Content-Type: application/json' \
+--data '{
+    "suit": "SPADES",
+    "rank": "J"
+}'
+```
+
+#### Ξερή με Rank
+```
+curl --location --request PUT 'http://localhost/crash-course/cards.php/play' \
+--header 'X-Player-Name: enemy' \
+--header 'Content-Type: application/json' \
+--data '{
+    "suit": "CLUBS",
+    "rank": "3"
+}'
+curl --location --request PUT 'http://localhost/crash-course/cards.php/play' \
+--header 'X-Player-Name: player' \
+--header 'Content-Type: application/json' \
+--data '{
+    "suit": "HEARTS",
+    "rank": "3"
+}'
+```
+
+#### Απλό Μάζεμα
+```
+curl --location --request PUT 'http://localhost/crash-course/cards.php/play' \
+--header 'X-Player-Name: enemy' \
+--header 'Content-Type: application/json' \
+--data '{
+    "suit": "CLUBS",
+    "rank": "7"
+}'
+curl --location --request PUT 'http://localhost/crash-course/cards.php/play' \
+--header 'X-Player-Name: player' \
+--header 'Content-Type: application/json' \
+--data '{
+    "suit": "DIAMONDS",
+    "rank": "8"
+}'
+curl --location --request PUT 'http://localhost/crash-course/cards.php/play' \
+--header 'X-Player-Name: enemy' \
+--header 'Content-Type: application/json' \
+--data '{
+    "suit": "SPADES",
+    "rank": "2"
+}'
+curl --location --request PUT 'http://localhost/crash-course/cards.php/play' \
+--header 'X-Player-Name: player' \
+--header 'Content-Type: application/json' \
+--data '{
+    "suit": "CLUBS",
+    "rank": "5"
+}'
+curl --location --request PUT 'http://localhost/crash-course/cards.php/play' \
+--header 'X-Player-Name: enemy' \
+--header 'Content-Type: application/json' \
+--data '{
+    "suit": "HEARTS",
+    "rank": "5"
+}'
+```
+
+#### Παίξιμο
+```
+curl --location --request PUT 'http://localhost/crash-course/cards.php/play' \
+--header 'X-Player-Name: player' \
+--header 'Content-Type: application/json' \
+--data '{
+    "suit": "HEARTS",
+    "rank": "9"
+}'
+curl --location --request PUT 'http://localhost/crash-course/cards.php/play' \
+--header 'X-Player-Name: enemy' \
+--header 'Content-Type: application/json' \
+--data '{
+    "suit": "DIAMONDS",
+    "rank": "6"
+}'
+curl --location --request PUT 'http://localhost/crash-course/cards.php/play' \
+--header 'X-Player-Name: player' \
+--header 'Content-Type: application/json' \
+--data '{
+    "suit": "SPADES",
+    "rank": "2"
+}'
+```
